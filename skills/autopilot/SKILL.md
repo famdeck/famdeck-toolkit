@@ -45,24 +45,30 @@ bd list --label relay:handoff --status open
 
 If handoffs exist, note the most recent one — it will be prioritized in the loop.
 
-### Step 3: Start the Ralph Loop
+### Step 3: Write the prompt file
 
-Construct and start the Ralph Loop with the per-iteration prompt below. Pass user arguments if provided (e.g., `--max-iterations`).
+Write the per-iteration prompt (see "Per-Iteration Prompt" section below) to `.claude/autopilot-prompt.md`, substituting `{{project_path}}` with the actual project path.
 
-Default invocation:
+If the user specified `--epic N`, append this line to the prompt file:
+```
+FILTER: Only work on stories with the `epic-N` label. Skip all other tasks.
+```
+
+### Step 4: Start the Ralph Loop
+
+Start the Ralph Loop referencing the prompt file:
 
 ```
-/ralph-loop "<the per-iteration prompt below>" --max-iterations 50 --completion-promise "AUTOPILOT_COMPLETE"
+/ralph-loop "Follow the instructions in .claude/autopilot-prompt.md exactly. Read the file first, then execute one full iteration." --max-iterations 50 --completion-promise "AUTOPILOT_COMPLETE"
 ```
 
 If the user specified `--max-iterations N`, use their value instead of 50.
-If the user specified `--epic N`, add "Only work on stories labeled epic-N" to the prompt.
 
 ---
 
 ## Per-Iteration Prompt
 
-Use this exact prompt for `/ralph-loop` (fill in the project path):
+Write this to `.claude/autopilot-prompt.md` (fill in the project path):
 
 ~~~
 You are an autonomous development agent working on {{project_path}}.
