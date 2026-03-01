@@ -71,12 +71,6 @@ This runs the full per-project initialization sequence:
 | `/toolkit-mode [normal\|readonly\|ignore]` | Set project init mode — full, registry-only, or skip |
 | `/toolkit-uninstall [tool\|all]` | Remove installed tools |
 
-### Skills
-
-| Skill | Description |
-|-------|-------------|
-| `/toolkit:coordination` | Multi-agent coordination protocol — session bootstrap, file reservations, threaded messaging, Beads integration |
-
 ### toolkit-init flags
 
 | Flag | Effect |
@@ -232,7 +226,7 @@ Mail-like coordination layer for multi-agent workflows. Provides memorable agent
 - Auth via bearer token (auto-generated during setup)
 - Auto-started by the toolkit's SessionStart hook
 
-**Usage:** See `/toolkit:coordination` skill for the full multi-agent workflow.
+**Usage:** See `/relay:coordination` skill for the full multi-agent workflow.
 
 **Docs:** https://github.com/Dicklesworthstone/mcp_agent_mail
 
@@ -405,7 +399,7 @@ tmux attach-session -t codeman-myproject  # Observe directly
 # Notifications fire for any session needing attention.
 ```
 
-When sessions work on the same project, use Agent Mail coordination (`/toolkit:coordination`) to prevent file conflicts.
+When sessions work on the same project, use Agent Mail coordination (`/relay:coordination`) to prevent file conflicts.
 
 ### Multi-agent coordination
 
@@ -413,7 +407,7 @@ When multiple agents work on the same project (e.g., via Codeman/tmux sessions):
 
 ```
 # The coordination skill teaches Claude the full protocol:
-/toolkit:coordination
+/relay:coordination
 ```
 
 **The protocol in brief:**
@@ -528,7 +522,7 @@ Distribute BMAD personas across agents for parallel planning and implementation:
 #   → Runs /bmad-bmm-dev-story, then /bmad-bmm-code-review
 ```
 
-See `/toolkit:coordination` for the full Agent Mail protocol including file reservations and BMAD persona distribution.
+See `/relay:coordination` for the full Agent Mail protocol including file reservations and BMAD persona distribution.
 
 ### Checking toolkit health
 
@@ -554,7 +548,7 @@ Installs just that one tool. Or run `/toolkit-setup` with no arguments for the i
 ```
 ┌───────────────────────────────────────────────────────────────────────┐
 │                        TOOLKIT (this plugin)                          │
-│  Setup, auto-install, project init, coordination skill                │
+│  Setup, auto-install, project init                                    │
 └──────────────────┬────────────────────────────────────────────────────┘
                    │ installs & manages
                    ▼
