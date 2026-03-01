@@ -20,6 +20,19 @@ persona:
 
 # Add custom critical actions (appended after standard config loading)
 critical_actions:
+  - id: sprint-status-priority-override
+    description: |
+      When running sprint-status and selecting the next action recommendation, use this priority
+      order instead of the default BMAD order:
+      1. If any story status == in-progress → recommend dev-story
+      2. Else if any story status == review → recommend code-review
+      3. Else if any story status == ready-for-dev → recommend dev-story
+      4. Else if any retrospective status == optional → recommend retrospective
+      5. Else if any story status == backlog → recommend create-story
+      6. Else → all done
+      The key difference: retrospectives (step 4) come BEFORE creating new backlog stories (step 5).
+      Never skip a pending retrospective to start new work.
+
   - id: retro-ai-workflow-review
     description: |
       During retrospectives, ALWAYS include a dedicated discussion on AI workflow effectiveness:
