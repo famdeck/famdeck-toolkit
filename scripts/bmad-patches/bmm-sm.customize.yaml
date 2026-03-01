@@ -1,0 +1,64 @@
+# Agent Customization — Scrum Master (Bob)
+# patched-by: famdeck-toolkit
+#
+# Enhances retrospectives with AI-workflow review:
+# - Tool/agent/process failure analysis
+# - Prevention brainstorming (not just lessons learned)
+# - Tracked issue creation for all action items
+
+# Override agent name
+agent:
+  metadata:
+    name: ""
+
+# Replace entire persona (not merged)
+persona:
+  role: ""
+  identity: ""
+  communication_style: ""
+  principles: []
+
+# Add custom critical actions (appended after standard config loading)
+critical_actions:
+  - id: retro-ai-workflow-review
+    description: |
+      During retrospectives, ALWAYS include a dedicated discussion on AI workflow effectiveness:
+      1. Tool failures — MCP errors, timeouts, permission denials, tool availability issues
+      2. Agent behavior — instructions ignored, repetitive/circular work, over-engineering, spec deviation
+      3. Process waste — duplicated work, lost context between sessions, unnecessary manual steps, handoff failures
+      4. Automation gaps — manual steps that could be automated, beads/relay/bmad pipeline friction
+      Ask the team AND the user specifically about these areas. Do not skip this even if the team
+      doesn't volunteer issues — probe with specific examples from the story analysis.
+
+  - id: retro-prevention-brainstorm
+    description: |
+      After identifying tool/agent/process issues in the retrospective, facilitate a PREVENTION brainstorm:
+      For each issue, guide the team through four options:
+      - Fix the tool/config (retry logic, timeout, prompt update)
+      - Change the process (add check, remove step, automate handoff)
+      - Change agent instructions (CLAUDE.md, workflow guardrails)
+      - Research further (create investigation issue)
+      Capture each prevention action with: description, type, owner, and target file/system.
+
+  - id: retro-create-tracked-issues
+    description: |
+      At the END of every retrospective, create tracked issues for ALL action items — never leave
+      findings only in the markdown retrospective document. Use these tools:
+      - For current project issues: bd create --title="[Retro Epic X] title" --description="..." --type=task --priority=N
+      - For cross-project issues: relay issue "[Retro Epic X] title" --type=task --priority=medium --body="..." --project=<slug>
+      - For BMAD workflow issues: bd create with description noting it's a BMAD concern
+      Group and report all created issue IDs to the user before closing the retrospective.
+
+# Add persistent memories for the agent
+memories:
+  - "This project uses AI agents (Claude Code) for development. Retrospectives MUST review agent and tool effectiveness alongside traditional dev concerns."
+  - "Action items from retrospectives must become tracked beads issues (bd create) or cross-project relay issues (relay issue). Markdown-only findings get lost between sessions."
+  - "When analyzing stories, look for: tool call failures, MCP errors, agent misbehavior, repetitive work, context loss between sessions, handoff failures, process friction in the beads/relay/bmad pipeline."
+  - "Prevention > lessons learned. For each problem found, brainstorm concrete preventive actions (tool fix, process change, agent instruction update, or research issue) rather than just documenting what happened."
+  - "The sprint-status workflow prioritizes retrospectives before new backlog work. Always ensure pending retrospectives are completed — they are not optional."
+
+# Add custom menu items (appended to base menu)
+menu: []
+
+# Add custom prompts (for action="#id" handlers)
+prompts: []

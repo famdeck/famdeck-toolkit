@@ -477,6 +477,73 @@ def init_bmad(project_dir: str):
     ))
 
 
+# ── BMAD customize patches ──────────────────────────────────────────────────
+
+BMAD_PATCHES_DIR = os.path.join(os.path.dirname(__file__), "bmad-patches")
+PATCH_MARKER = "# patched-by: famdeck-toolkit"
+
+
+def patch_bmad_customize(project_dir: str):
+    """Apply famdeck customize patches to BMAD agent config files.
+
+    Patches are stored in scripts/bmad-patches/<agent>.customize.yaml.
+    Each patch is applied to _bmad/_config/agents/<agent>.customize.yaml
+    only if the file exists and hasn't been patched already.
+
+    Returns True if any patch was applied (or all already applied).
+    """
+    agents_dir = os.path.join(project_dir, "_bmad", "_config", "agents")
+    if not os.path.isdir(agents_dir):
+        return False
+    if not os.path.isdir(BMAD_PATCHES_DIR):
+        return False
+
+    any_result = False
+    for patch_file in sorted(os.listdir(BMAD_PATCHES_DIR)):
+        if not patch_file.endswith(".customize.yaml"):
+            continue
+
+        patch_path = os.path.join(BMAD_PATCHES_DIR, patch_file)
+        target_path = os.path.join(agents_dir, patch_file)
+
+        if not os.path.isfile(target_path):
+            continue  # Agent not installed, skip
+
+        try:
+            existing = open(target_path).read()
+        except OSError:
+            continue
+
+        if PATCH_MARKER in existing:
+            any_result = True  # Already patched
+            continue
+
+        # Only overwrite if the file is still the default template (has empty arrays)
+        # If user has customized it, we don't want to clobber their changes
+        has_custom_content = False
+        for line in existing.splitlines():
+            stripped = line.strip()
+            # Check for non-empty YAML arrays (lines starting with "- " under known keys)
+            if stripped.startswith("- ") and not stripped.startswith("- trigger:"):
+                # Could be a user-added memory, critical_action, etc.
+                has_custom_content = True
+                break
+
+        if has_custom_content:
+            log(f"  {YELLOW}Skip {patch_file}: has user customizations (merge manually){RESET}")
+            continue
+
+        try:
+            patch_content = open(patch_path).read()
+            with open(target_path, "w") as f:
+                f.write(patch_content)
+            any_result = True
+        except OSError as exc:
+            log(f"  {YELLOW}Skip {patch_file}: {exc}{RESET}")
+
+    return any_result
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 
@@ -563,6 +630,10 @@ def main():
                 status["serena"] = init_serena(repo_path)
             if has_bmad:
                 status["bmad"] = init_bmad(repo_path)
+            # Patch BMAD agent customize files if BMAD is present
+            bmad_dir = os.path.join(repo_path, "_bmad")
+            if os.path.isdir(bmad_dir) and not SKIP_BMAD:
+                status["bmad-patch"] = patch_bmad_customize(repo_path)
 
         results.append((rel, mode, status))
 
