@@ -75,7 +75,6 @@ This runs the full per-project initialization sequence:
 
 | Skill | Description |
 |-------|-------------|
-| `/toolkit:autopilot` | Autonomous work loop — discover tasks from Beads/Relay, work on them, close, repeat. For Codeman respawn and long-running sessions |
 | `/toolkit:coordination` | Multi-agent coordination protocol — session bootstrap, file reservations, threaded messaging, Beads integration |
 
 ### toolkit-init flags
@@ -256,7 +255,7 @@ Web-based session manager that turns Claude Code into a persistent autonomous ag
   "respawn": {
     "enabled": true,
     "durationMinutes": 480,
-    "updatePrompt": "Check for relay handoffs and beads ready tasks, then work on the highest priority one. Run /toolkit:autopilot for the full protocol.",
+    "updatePrompt": "Check for relay handoffs and beads ready tasks, then work on the highest priority one. Run /famdeck-toolkit:autopilot for the full protocol.",
     "idleTimeoutMs": 5000
   },
   "autoCompact": { "thresholdTokens": 110000 },
@@ -374,10 +373,10 @@ Let Claude work on a project unattended:
 #    /beads:create (repeat for each task)
 #    /relay:handoff (if continuing existing work)
 # 3. Give Claude an initial prompt:
-#    "Run /toolkit:autopilot — work through all ready tasks"
+#    "Run /famdeck-toolkit:autopilot — work through all ready tasks"
 # 4. Enable respawn (8 hours) with this update prompt:
 #    "Check for relay handoffs and beads ready tasks, then work on
-#     the highest priority one. Run /toolkit:autopilot for the full protocol."
+#     the highest priority one. Run /famdeck-toolkit:autopilot for the full protocol."
 # 5. Walk away — Claude picks tasks from the queue, works, closes,
 #    picks next. Auto-compacts at 110k tokens, auto-refreshes at 140k.
 # 6. Check dashboard in the morning for progress
@@ -468,7 +467,7 @@ git init
 /bmad-bmm-create-epics-and-stories
 
 # 4. Implementation — work through stories
-/toolkit:autopilot
+/famdeck-toolkit:autopilot
 # Autopilot checks _bmad-output/ for planning artifacts,
 # then uses /bmad-bmm-dev-story for each matching task
 ```
@@ -502,7 +501,7 @@ Seed planning first, then let autopilot work through stories overnight:
 
 # 2. Create Beads issues from stories (optional but recommended)
 # 3. Launch a Codeman session with respawn enabled
-# 4. Initial prompt: "Run /toolkit:autopilot"
+# 4. Initial prompt: "Run /famdeck-toolkit:autopilot"
 # 5. Autopilot sees _bmad-output/ artifacts exist →
 #    proceeds to pick tasks and implement with /bmad-bmm-dev-story
 ```
