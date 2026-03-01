@@ -62,7 +62,9 @@ bd create \
   --title="Story N.M: <title>" \
   --type=feature \
   --priority=<derived from epic priority and story position> \
-  --description="<full story text including As a.../I want.../So that... and all acceptance criteria>" \
+  --description="Source: _bmad-output/planning-artifacts/epics.md (Story N.M)
+
+<full story text including As a.../I want.../So that... and all acceptance criteria>" \
   --acceptance="<acceptance criteria section>" \
   --labels="bmad-story,epic-N,story-N.M" \
   --parent=<epic beads_id> \
