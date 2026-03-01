@@ -24,7 +24,16 @@ Read `_bmad-output/planning-artifacts/epics.md` completely. Identify:
 - Story descriptions and acceptance criteria
 - Dependencies between stories (look for references like "after Story X.Y", "depends on", "requires Story")
 
-### Step 2: Check for existing imports
+### Step 2: Scan for existing Beads issues (reconciliation)
+
+Run `bd list` to get ALL existing Beads issues (open, in_progress, and closed). For each issue title:
+
+- If it matches `Story (\d+\.\d+):`, extract the story key (e.g., `1.3`) and record `{story_key → beads_id}`
+- If it matches `Epic (\d+):`, extract the epic key (e.g., `1`) and record `{epic_key → beads_id}`
+
+This produces a **pre-existing issue map** used for reconciliation in later steps.
+
+### Step 3: Check manifest and merge with pre-existing issues
 
 Check if `.beads/bmad-import-manifest.json` exists. If it does, read it — it maps story keys to Beads issue IDs:
 
@@ -41,11 +50,22 @@ Check if `.beads/bmad-import-manifest.json` exists. If it does, read it — it m
 }
 ```
 
-Skip any story/epic already in the manifest unless `--force` was specified.
+**Merge the pre-existing issue map into the manifest:**
+- If a key exists in BOTH the manifest AND pre-existing issues, keep the manifest entry (it was a prior import)
+- If a key exists ONLY in pre-existing issues, add it to the manifest with `"source": "reconciled"`
+- Example: `"1.9": { "beads_id": "FD-imt", "title": "Adversarial Review via BMAD Code Review", "source": "reconciled" }`
 
-### Step 3: Create epic issues
+Skip any story/epic already in the merged manifest unless `--force` was specified.
 
-For each `## Epic N: Title` section, create a Beads epic:
+### Step 4: Create epic issues
+
+For each `## Epic N: Title` section:
+
+1. **Check the merged manifest** — if epic key N already exists, skip creation:
+   - If `"source": "reconciled"`, log: `Reconciled Epic N with existing <beads_id>`
+   - Otherwise log: `Skipped Epic N (already imported as <beads_id>)`
+   - Optionally add `bmad-epic` and `epic-N` labels to the pre-existing issue if missing: `bd label <beads_id> add bmad-epic epic-N`
+2. **If not in manifest**, create the epic:
 
 ```bash
 bd create --title="Epic N: <title>" --type=epic --priority=1 --description="<epic description from epics.md>" --labels="bmad-epic,epic-N" --silent
@@ -53,9 +73,15 @@ bd create --title="Epic N: <title>" --type=epic --priority=1 --description="<epi
 
 Record the returned issue ID in the manifest under `epics.N`.
 
-### Step 4: Create story issues
+### Step 5: Create story issues
 
-For each `### Story N.M: Title` section, create a Beads issue:
+For each `### Story N.M: Title` section:
+
+1. **Check the merged manifest** — if story key N.M already exists, skip creation:
+   - If `"source": "reconciled"`, log: `Reconciled Story N.M with existing <beads_id>`
+   - Otherwise log: `Skipped Story N.M (already imported as <beads_id>)`
+   - Optionally add `bmad-story`, `epic-N`, and `story-N.M` labels to the pre-existing issue if missing: `bd label <beads_id> add bmad-story epic-N story-N.M`
+2. **If not in manifest**, create the story:
 
 ```bash
 bd create \
@@ -78,7 +104,7 @@ bd create \
 
 Record the returned issue ID in the manifest under `stories.N.M`.
 
-### Step 5: Set up dependencies
+### Step 6: Set up dependencies
 
 After all issues are created, set up dependencies based on:
 
@@ -103,9 +129,9 @@ Use `bd dep add <dependent> <dependency>` for each relationship.
 
 Read the stories carefully to derive the correct dependency graph. When in doubt, prefer fewer dependencies — don't over-constrain.
 
-### Step 6: Write the manifest
+### Step 7: Write the manifest
 
-Write the complete manifest to `.beads/bmad-import-manifest.json`:
+Write the complete manifest to `.beads/bmad-import-manifest.json`. Include reconciled entries with their `"source": "reconciled"` marker:
 
 ```json
 {
@@ -113,6 +139,7 @@ Write the complete manifest to `.beads/bmad-import-manifest.json`:
   "source": "_bmad-output/planning-artifacts/epics.md",
   "stories": {
     "1.1": { "beads_id": "FD-xxx", "title": "..." },
+    "1.9": { "beads_id": "FD-imt", "title": "Adversarial Review via BMAD Code Review", "source": "reconciled" },
     ...
   },
   "epics": {
@@ -122,13 +149,13 @@ Write the complete manifest to `.beads/bmad-import-manifest.json`:
 }
 ```
 
-### Step 7: Report results
+### Step 8: Report results
 
 Print a summary:
 ```
 BMAD Import Complete
-  Epics:   N created, N skipped (already imported)
-  Stories: N created, N skipped (already imported)
+  Epics:   N created, N skipped (already imported), N reconciled (matched existing)
+  Stories: N created, N skipped (already imported), N reconciled (matched existing)
   Dependencies: N set
   Manifest: .beads/bmad-import-manifest.json
 ```
@@ -142,6 +169,11 @@ BMAD Import Complete
 ## Idempotency
 
 The manifest file (`.beads/bmad-import-manifest.json`) tracks all imported stories by their story key (e.g., "1.3"). Re-running the import skips already-imported stories. Use `--force` to override.
+
+**Reconciliation:** Even without a manifest, the skill scans existing Beads issues for `Story N.M:` and `Epic N:` title patterns. Pre-existing issues are merged into the manifest as `"source": "reconciled"` entries, preventing duplicate creation. This means:
+- Deleting the manifest and re-running will NOT create duplicates
+- Manually-created issues with proper title format are automatically discovered
+- The `--force` flag bypasses both manifest AND reconciliation checks
 
 ## Notes
 
