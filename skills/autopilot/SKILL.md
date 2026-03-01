@@ -1,13 +1,25 @@
 ---
 name: autopilot
-description: "Autonomous work loop — discover tasks from Beads and Relay, pick the highest-priority one, work on it, close it, repeat. Uses Ralph Loop for iteration and BMAD dev-story for implementation. Designed for long-running autonomous work."
+description: "Autonomous work loop — discover tasks from Beads and Relay, pick the highest-priority one, work on it, close it, repeat. Uses Agent tool for per-task isolation and BMAD dev-story for implementation. Designed for long-running autonomous work."
 ---
 
 # Autopilot Work Loop
 
-Work autonomously by discovering and completing tasks from Beads, using Ralph Loop for continuous iteration and BMAD workflows for structured implementation.
+Work autonomously by discovering and completing tasks from Beads. Each task runs in an isolated Agent subprocess (equivalent to a Codeman session in the target architecture).
 
-## Pre-Flight Checks (run once before starting the loop)
+## Architecture
+
+```
+autopilot (this skill)     ← outer loop: task discovery + lifecycle
+  └─ Agent tool (per task) ← inner session: isolated execution per task
+       └─ BMAD dev-story   ← implementation methodology (if BMAD story)
+```
+
+- **Outer loop**: This skill manages task cycling — pick, dispatch, close, repeat
+- **Agent tool**: Each task runs in a subagent with its own context window (maps to Codeman sessions in target architecture)
+- **BMAD dev-story**: Structured implementation inside the agent session
+
+## Pre-Flight Checks (run once)
 
 ### Step 0: Verify BMAD planning state
 
@@ -45,148 +57,158 @@ bd list --label relay:handoff --status open
 
 If handoffs exist, note the most recent one — it will be prioritized in the loop.
 
-### Step 3: Write the prompt file
+## Task Loop
 
-Write the per-iteration prompt (see "Per-Iteration Prompt" section below) to `.claude/autopilot-prompt.md`, substituting `{{project_path}}` with the actual project path.
+After pre-flight checks pass, enter the task loop. Repeat until no work remains:
 
-If the user specified `--epic N`, append this line to the prompt file:
-```
-FILTER: Only work on stories with the `epic-N` label. Skip all other tasks.
-```
+### For each iteration:
 
-### Step 4: Start the Ralph Loop
+#### 1. Find the next task
 
-Start the Ralph Loop referencing the prompt file:
-
-```
-/ralph-loop "Follow the instructions in .claude/autopilot-prompt.md exactly. Read the file first, then execute one full iteration." --max-iterations 50 --completion-promise "AUTOPILOT_COMPLETE"
-```
-
-If the user specified `--max-iterations N`, use their value instead of 50.
-
----
-
-## Per-Iteration Prompt
-
-Write this to `.claude/autopilot-prompt.md` (fill in the project path):
-
-~~~
-You are an autonomous development agent working on {{project_path}}.
-Each iteration: pick one task, implement it, close it.
-
-## Iteration Steps
-
-### 1. Find work
-
-First check for high-priority handoffs:
+Check for handoffs first (highest priority):
 ```bash
 bd list --label relay:handoff --status open
 ```
-
-If handoffs exist, pick the most recent one:
-```bash
-bd show <handoff-id>
-bd update <handoff-id> --status in_progress
-```
-Read the handoff description for context (branch, decisions, next steps) and resume from where they left off.
 
 If no handoffs, find the next ready task:
 ```bash
 bd ready -n 1
 ```
 
-If no tasks are available, output: <promise>AUTOPILOT_COMPLETE</promise>
+If no tasks available → **stop the loop**. Report summary and exit.
 
-### 2. Claim the task
+#### 2. Claim it
 
 ```bash
 bd update <issue-id> --status in_progress
 bd show <issue-id>
 ```
 
-Read the full issue description and acceptance criteria.
+Read the full description and acceptance criteria.
 
-### 3. Multi-agent check (if Agent Mail MCP tools are available)
+#### 3. Dispatch to Agent
 
-If other agents might be working on this project:
-- Check inbox: `fetch_inbox(project_key="{{project_path}}", agent_name="autopilot")`
-- Reserve files you plan to edit: `file_reservation_paths(project_key="{{project_path}}", agent_name="autopilot", paths=[...], reason="<issue-id>")`
+Launch the task in an isolated Agent subprocess using the **Agent tool**. This gives each task its own context window and prevents context bloat in the main session.
 
-Skip if you are the only agent.
+Use `subagent_type: "general-purpose"` and construct the prompt based on the task type:
 
-### 4. Implement
+**For BMAD stories** (has `bmad-story` label):
 
-**If the task has a `bmad-story` label** (imported from BMAD):
-- This is a BMAD story with acceptance criteria
-- Use `/bmad-bmm-dev-story` to implement it — this runs the full structured dev workflow:
-  - Story discovery and context loading
-  - TDD implementation (write tests first, then implement)
-  - Quality validation against acceptance criteria
-  - Sprint status updates
+```
+Agent prompt:
+"You are working on project /path/to/project.
+Task: [issue-id] [title]
 
-**If the task is a regular Beads issue** (no `bmad-story` label):
-- Implement directly based on the issue description
-- Read relevant code before modifying
-- Write tests for your changes
-- Run existing tests to verify no regressions
+[Full issue description and acceptance criteria from bd show]
 
-**For all tasks:**
-- Create a feature branch: `git checkout -b <issue-id>/<short-description>`
-- Commit with the issue ID: `[<issue-id>] <description>`
-- Run tests: detect test runner (pytest, vitest, jest, go test) and run it
-- Run linter if available (ruff, eslint)
+Implementation instructions:
+1. Create a feature branch: git checkout -b [issue-id]/[short-name]
+2. Use /bmad-bmm-dev-story to implement this story — it runs the full structured dev workflow with TDD, quality validation, and acceptance criteria checking.
+3. After implementation, run tests and linter to verify quality.
+4. Commit all changes with [issue-id] in the commit message.
+5. Push the branch: git push -u origin [branch-name]
 
-### 5. Quality check
+When done, report: what was implemented, test results, files changed."
+```
 
-Before closing, verify:
-- [ ] Tests pass (run the test suite)
-- [ ] Linter clean (run the linter)
-- [ ] Changes committed with issue ID in message
-- [ ] No untracked files left behind
+**For regular Beads issues** (no `bmad-story` label):
 
-If tests or linter fail, fix the issues before proceeding.
+```
+Agent prompt:
+"You are working on project /path/to/project.
+Task: [issue-id] [title]
 
-### 6. Close and clean up
+[Full issue description from bd show]
+
+Implementation instructions:
+1. Create a feature branch: git checkout -b [issue-id]/[short-name]
+2. Read relevant code before modifying.
+3. Write tests for your changes.
+4. Implement the changes.
+5. Run tests and linter to verify.
+6. Commit with [issue-id] in the message.
+7. Push the branch: git push -u origin [branch-name]
+
+When done, report: what was implemented, test results, files changed."
+```
+
+**For handoffs:**
+
+```
+Agent prompt:
+"You are resuming work from a handoff on project /path/to/project.
+Handoff: [issue-id]
+
+[Full handoff description including branch, decisions, next steps]
+
+Resume from where they left off. Follow the next steps described in the handoff.
+When done, report what was accomplished."
+```
+
+**Agent options:**
+- Use `run_in_background: false` — wait for the agent to complete before proceeding
+- The agent has access to all tools (Bash, Read, Write, Edit, Grep, etc.)
+
+#### 4. Process the result
+
+When the Agent returns:
+- Review its report (what was implemented, test results, files changed)
+- If the agent reports success → proceed to close
+- If the agent reports failure → add notes to the issue and move to the next task:
+  ```bash
+  bd update <issue-id> --notes "Agent failed: <details from agent report>"
+  ```
+
+#### 5. Close the task
 
 ```bash
 bd close <issue-id>
 ```
 
-If you reserved files:
+Clean up:
+```bash
+git checkout main && git pull
 ```
-release_file_reservations(project_key="{{project_path}}", agent_name="autopilot")
-```
 
-If the task was non-trivial in a BMAD project, consider running `/bmad-bmm-code-review` before closing.
+#### 6. Continue the loop
 
-### 7. Prepare for next iteration
+Go back to step 1 (Find the next task). The loop continues until `bd ready` returns no tasks and no handoffs exist.
 
-Run `git checkout main && git pull` to start clean for the next task.
+## When to stop
 
-The loop will automatically feed this prompt back for the next iteration.
-If there are no more tasks, `bd ready` will return nothing and you will output the completion promise.
+- `bd ready` returns no tasks AND no handoffs exist → report summary and exit
+- User explicitly tells you to stop
+- An unrecoverable error occurs (report it and exit)
 
 ## Error Handling
 
-- **Test failures you can't fix:** Leave task in_progress, add comment: `bd update <id> --notes "Tests failing: <details>"`, move to next task
+- **Agent fails on a task:** Add notes to the issue, leave it in_progress, move to the next task
+- **No test runner found:** Agent should report this; note it and continue
 - **Blocked by another task:** `bd dep add <this-id> <blocker-id>`, move to next task
-- **Missing context:** Read related issues (`bd show`), check git log, search codebase — investigate, don't guess
-- **Stuck after 3 attempts on same issue:** Create a blocker issue: `bd create --title="Blocker: <description>" --type=bug --priority=1`, leave current task in_progress, move on
+- **Stuck after 3 attempts on same issue:** Create a blocker issue: `bd create --title="Blocker: <description>" --type=bug --priority=1`, move on
 
-Do NOT output <promise>AUTOPILOT_COMPLETE</promise> unless `bd ready` returns no tasks AND there are no handoffs. The loop should continue as long as there is work to do.
-~~~
+## Loop Summary
 
----
+After all tasks are done (or the loop stops), print a summary:
+
+```
+Autopilot Summary
+  Tasks completed: N
+  Tasks failed: N (left in_progress with notes)
+  Tasks skipped: N (blocked/deferred)
+  Remaining ready: N
+```
 
 ## Options
 
-- `--max-iterations N` — Override the default 50 iteration limit
-- `--epic N` — Only work on stories from Epic N (filter by `epic-N` label)
+- `--epic N` — Only work on stories from Epic N (filter by `epic-N` label in `bd ready`)
+- `--max-tasks N` — Stop after completing N tasks (safety limit)
+- `--dry-run` — Show what tasks would be picked without executing them
 
-## Codeman Integration
+## Codeman Integration (future)
 
-When running in a Codeman-managed session, use this as the respawn update prompt:
-
-```
-Check for relay handoffs and beads ready tasks, then work on the highest priority one. Run /autopilot for the full protocol.
-```
+When Codeman sessions are available (famdeck-plugin Epic 2), the Agent tool dispatch is replaced by Codeman session orchestration:
+- `POST /api/sessions` instead of Agent tool
+- SSE monitoring instead of waiting for Agent return
+- Ralph Loop runs INSIDE Codeman sessions for iterative refinement
+- The outer task loop structure remains the same
