@@ -85,6 +85,23 @@ tool(
     recommended=True,
 )
 
+# --- Famdeck ---
+def _install_famdeck():
+    if not check_marketplace("ivintik"):
+        run("claude plugin marketplace add iVintik/private-claude-marketplace")
+    return run("claude plugin install famdeck@ivintik")
+
+def _uninstall_famdeck():
+    run("claude plugin uninstall famdeck")
+
+tool(
+    "famdeck", "Famdeck", "Autopilot, quality gates, story validation, autonomy assessment",
+    check_fn=lambda: check_plugin("famdeck"),
+    install_fn=_install_famdeck,
+    uninstall_fn=_uninstall_famdeck,
+    recommended=True,
+)
+
 tool(
     "context7", "Context7", "Up-to-date library docs via MCP plugin",
     check_fn=lambda: check_plugin("context7"),
