@@ -466,7 +466,14 @@ def init_bmad(project_dir: str):
     if not command_exists("npx"):
         return False
     if os.path.isdir(os.path.join(project_dir, "_bmad")):
-        return True  # Already installed
+        # Already installed — but restore commands if missing
+        commands_dir = os.path.join(project_dir, ".claude", "commands")
+        has_bmad_commands = os.path.isdir(commands_dir) and any(
+            f.startswith("bmad-") for f in os.listdir(commands_dir)
+        )
+        if has_bmad_commands:
+            return True
+        # Commands missing — reinstall to restore them
     return bool(run(
         f'npx bmad-method install'
         f' --directory "{project_dir}"'
