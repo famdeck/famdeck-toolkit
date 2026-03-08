@@ -1,15 +1,17 @@
 ---
 name: toolkit-uninstall
-description: Remove Claude Code tools installed by toolkit
+description: "Uninstall or remove any tool that the Famdeck toolkit installed — Beads, Atlas, Relay, Serena, Agent Mail, or the toolkit itself. Use whenever the request is about removing, deleting, or cleaning up toolkit-managed Claude Code tools."
 argument-hint: "[tool-name | all]"
 ---
 
 # Toolkit Uninstall
 
-Run the interactive uninstall script.
+Remove toolkit-managed tools (plugins and MCP servers).
 
-## Steps
+## Dispatch
 
-1. Run `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/uninstall.py`
-2. The script will show installed tools and prompt which to remove
-3. Display the results to the user
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/uninstall.py $ARGUMENTS
+```
+
+The script shows installed tools and prompts which to remove. Display the results to the user.

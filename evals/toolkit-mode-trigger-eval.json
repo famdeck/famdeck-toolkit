@@ -1,0 +1,22 @@
+[
+  {"query": "set this repo to readonly mode so toolkit-init skips writing files to it", "should_trigger": true},
+  {"query": "i want to exclude this project from being initialized — it's a reference repo", "should_trigger": true},
+  {"query": "mark this project as ignored so the init scan skips it", "should_trigger": true},
+  {"query": "what mode is this project in for the toolkit", "should_trigger": true},
+  {"query": "show me which of my repos are set to ignore or readonly", "should_trigger": true},
+  {"query": "i want ~/dev/archive to be ignored when i run toolkit-init — how do i set that", "should_trigger": true},
+  {"query": "list the init modes for all repos in this directory", "should_trigger": true},
+  {"query": "set this project back to normal mode — i want it fully initialized next time", "should_trigger": true},
+  {"query": "this repo is a vendor dependency — make it readonly only for atlas registration", "should_trigger": true},
+  {"query": "check what init mode is configured for the current git repo", "should_trigger": true},
+  {"query": "initialize all repos in this folder for famdeck", "should_trigger": false},
+  {"query": "show toolkit installation status", "should_trigger": false},
+  {"query": "add this project to atlas", "should_trigger": false},
+  {"query": "set the relay tracker mode to github for this project", "should_trigger": false},
+  {"query": "change the git branch protection rules for this repo", "should_trigger": false},
+  {"query": "configure github actions for this project", "should_trigger": false},
+  {"query": "what is the default scan depth for toolkit init", "should_trigger": false},
+  {"query": "how do i exclude a folder from being tracked in git", "should_trigger": false},
+  {"query": "set environment to production mode", "should_trigger": false},
+  {"query": "show me the relay config for this project", "should_trigger": false}
+]

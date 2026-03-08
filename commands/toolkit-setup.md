@@ -1,28 +1,28 @@
 ---
 name: toolkit-setup
-description: Interactive setup for Claude Code tools — install, reinstall, or add individual tools
-argument-hint: "[tool-name]"
+description: "Use when the user wants to install, reinstall, or add any Famdeck tool (Atlas, Relay, Beads, Serena, Agent Mail, Context7) to their Claude Code setup — first-time setup, adding a missing tool, running the setup wizard, or fixing a broken plugin after an update."
+argument-hint: "[tool-name | all]"
 ---
 
 # Toolkit Setup
 
-The setup script must run from a **regular terminal** (outside Claude Code) because `claude plugin install` and `claude mcp add` hang when invoked from within a running session.
+The setup script **must run from a regular terminal** (outside Claude Code) because `claude plugin install` and `claude mcp add` hang when invoked from within a running session.
 
-Do NOT attempt to run the script yourself. Instead, tell the user to run one of these commands in their terminal:
+**Do NOT run the script yourself.** Instead, give the user the appropriate command to copy-paste:
 
-**Install interactively:**
+**Interactive install:**
 ```
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/setup.py
 ```
 
-**Install a specific tool** (if `$ARGUMENTS` contains a tool name):
+**Install a specific tool** (when `$ARGUMENTS` contains a tool name):
 ```
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/setup.py --install $ARGUMENTS
 ```
 
-**Install all standard tools** (if `$ARGUMENTS` is "all"):
+**Install all standard tools** (when `$ARGUMENTS` is `all`):
 ```
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/setup.py --non-interactive
 ```
 
-Present the command clearly so the user can copy-paste it. Use `/toolkit:toolkit-status` to show current status (that one works inside Claude Code).
+After the user runs the command, use `/toolkit-status` to verify the result.

@@ -1,0 +1,22 @@
+[
+  {"query": "i just cloned a bunch of repos into ~/dev/work — can you init them all for the famdeck ecosystem", "should_trigger": true},
+  {"query": "scan this directory for git repos and set everything up", "should_trigger": true},
+  {"query": "how do i onboard all my projects at once into atlas and relay", "should_trigger": true},
+  {"query": "initialize workspace — i want beads and agent mail configured for every repo here", "should_trigger": true},
+  {"query": "set up all the toolkit stuff for the repos in this folder", "should_trigger": true},
+  {"query": "register all my projects in atlas in one shot", "should_trigger": true},
+  {"query": "run toolkit init on the current directory", "should_trigger": true},
+  {"query": "bootstrap my dev environment — i have about 12 repos in ~/projects/ that all need relay and beads configured", "should_trigger": true},
+  {"query": "just moved to a new mac, need to init everything under ~/code for famdeck", "should_trigger": true},
+  {"query": "i want to add all repos in this monorepo parent folder to atlas", "should_trigger": true},
+  {"query": "init a new git repo here with a basic readme", "should_trigger": false},
+  {"query": "create a new beads project for this repo", "should_trigger": false},
+  {"query": "add this specific project to atlas — its at ~/dev/myapp", "should_trigger": false},
+  {"query": "set up relay trackers for just this one project", "should_trigger": false},
+  {"query": "initialize a new node project with npm init", "should_trigger": false},
+  {"query": "run git init in the current directory", "should_trigger": false},
+  {"query": "configure the relay tracker for this repo to point to my jira board", "should_trigger": false},
+  {"query": "i need to set up a new atlas project — what fields does it need", "should_trigger": false},
+  {"query": "install the toolkit — i dont have any of the famdeck tools yet", "should_trigger": false},
+  {"query": "show me all the repos currently registered in atlas", "should_trigger": false}
+]

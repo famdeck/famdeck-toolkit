@@ -1,0 +1,22 @@
+[
+  {"query": "what claude code tools do i have installed rn", "should_trigger": true},
+  {"query": "is atlas registered? i just set up a new machine and cant remember what i installed", "should_trigger": true},
+  {"query": "show me the toolkit status", "should_trigger": true},
+  {"query": "check if relay is configured — i think i may have skipped that step during setup", "should_trigger": true},
+  {"query": "are beads and agent mail both installed? i need them for this project", "should_trigger": true},
+  {"query": "which plugins does the toolkit manage and what state are they in", "should_trigger": true},
+  {"query": "something seems off with my setup, can you verify what tools are actually active", "should_trigger": true},
+  {"query": "is serena installed? it doesnt seem to be doing anything", "should_trigger": true},
+  {"query": "list all the famdeck tools and whether theyre working", "should_trigger": true},
+  {"query": "check my toolkit — is everything set up correctly or is something missing", "should_trigger": true},
+  {"query": "can you help me write a bash script that checks if a directory exists before creating it", "should_trigger": false},
+  {"query": "list all the files in my src/ directory and show me which ones import React", "should_trigger": false},
+  {"query": "what issues are open in my beads tracker right now", "should_trigger": false},
+  {"query": "show me the atlas project registry — what repos are registered", "should_trigger": false},
+  {"query": "is my python environment set up correctly? i keep getting import errors for numpy", "should_trigger": false},
+  {"query": "what relay trackers are configured for this project specifically", "should_trigger": false},
+  {"query": "check whether my git hooks are installed", "should_trigger": false},
+  {"query": "run a health check on my docker containers and tell me which are running", "should_trigger": false},
+  {"query": "show installed node modules in this package", "should_trigger": false},
+  {"query": "how do i know which version of serena is running", "should_trigger": false}
+]

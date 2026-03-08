@@ -1,0 +1,22 @@
+[
+  {"query": "remove atlas — i don't want it anymore", "should_trigger": true},
+  {"query": "uninstall all the toolkit tools from my claude code", "should_trigger": true},
+  {"query": "how do i get rid of relay", "should_trigger": true},
+  {"query": "clean up the famdeck plugins — i want to start fresh", "should_trigger": true},
+  {"query": "delete the serena plugin", "should_trigger": true},
+  {"query": "i want to uninstall beads — it's causing issues", "should_trigger": true},
+  {"query": "remove all the plugins the toolkit installed", "should_trigger": true},
+  {"query": "how do i undo what toolkit-setup did", "should_trigger": true},
+  {"query": "remove agent-mail mcp from my claude setup", "should_trigger": true},
+  {"query": "i'm switching setups and want to wipe all the famdeck tools first", "should_trigger": true},
+  {"query": "install atlas on my machine", "should_trigger": false},
+  {"query": "what tools are currently installed", "should_trigger": false},
+  {"query": "init my repos for famdeck", "should_trigger": false},
+  {"query": "set this project to ignore mode", "should_trigger": false},
+  {"query": "how do i remove a git repo from atlas registry", "should_trigger": false},
+  {"query": "delete all the beads issues in this project", "should_trigger": false},
+  {"query": "remove this relay tracker config from the project", "should_trigger": false},
+  {"query": "how do i uninstall a homebrew package", "should_trigger": false},
+  {"query": "git rm a file from the repo", "should_trigger": false},
+  {"query": "i want to disable context7 for a specific project", "should_trigger": false}
+]

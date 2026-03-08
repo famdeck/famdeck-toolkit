@@ -1,0 +1,22 @@
+[
+  {"query": "i need to install atlas — how do i do that", "should_trigger": true},
+  {"query": "how do i get all the famdeck tools installed on my machine", "should_trigger": true},
+  {"query": "set up the toolkit — i just got a new mac and need to reinstall everything", "should_trigger": true},
+  {"query": "i'm missing relay, can you install it for me", "should_trigger": true},
+  {"query": "install all the claude code plugins from the famdeck ecosystem", "should_trigger": true},
+  {"query": "reinstall serena — it seems broken after an update", "should_trigger": true},
+  {"query": "add the context7 mcp server to my claude code setup", "should_trigger": true},
+  {"query": "i want to add agent-mail — is that part of the toolkit", "should_trigger": true},
+  {"query": "fresh claude code install — what do i need to do to get the toolkit tools working", "should_trigger": true},
+  {"query": "the toolkit setup wizard — how do i run it", "should_trigger": true},
+  {"query": "what version of atlas is installed", "should_trigger": false},
+  {"query": "check which tools are installed", "should_trigger": false},
+  {"query": "uninstall relay — i don't want it anymore", "should_trigger": false},
+  {"query": "init all repos in this folder for famdeck", "should_trigger": false},
+  {"query": "install npm packages for this project", "should_trigger": false},
+  {"query": "set up a github actions workflow", "should_trigger": false},
+  {"query": "how do i configure atlas to track a new project", "should_trigger": false},
+  {"query": "add a new mcp server to claude code for my custom tool", "should_trigger": false},
+  {"query": "install python dependencies from requirements.txt", "should_trigger": false},
+  {"query": "does the toolkit support windows", "should_trigger": false}
+]
